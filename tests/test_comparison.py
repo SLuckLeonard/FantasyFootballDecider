@@ -13,6 +13,6 @@ if __name__ == "__main__":
         print(f"Found Patrick Mahomes' ID: {patrick_mahomes_id}")
 
         # Compare Aaron Rodgers and Patrick Mahomes
-        compare_players(aaron_rodgers_id, patrick_mahomes_id, 'Week_3')
+        compare_players(aaron_rodgers_id, patrick_mahomes_id, 3)
     else:
         print("Failed to retrieve player IDs for Aaron Rodgers or Patrick Mahomes.")

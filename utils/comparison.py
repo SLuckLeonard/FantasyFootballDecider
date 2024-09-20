@@ -27,23 +27,28 @@ def compare_players(player_a_id, player_b_id, week):
     if not teams:
         return "Error: Could not retrieve team information."
 
-    player_a_team_id = player_a_projections['playerProjections'][str(player_a_id)]['teamID']
-    player_b_team_id = player_b_projections['playerProjections'][str(player_b_id)]['teamID']
+    player_a_team_id = str(player_a_projections['body'].get('team'))
+    #print(player_a_team_id)
+    player_b_team_id = str(player_b_projections['body'].get('team'))
+    #print(player_b_team_id)
 
     # Extract team performance (e.g., win/loss record, standings)
-    player_a_team_stats = next((team for team in teams['teams'] if team['teamID'] == player_a_team_id), None)
-    player_b_team_stats = next((team for team in teams['teams'] if team['teamID'] == player_b_team_id), None)
+    player_a_team_stats = get_player_team_stats(player_a_team_id, teams)
+    #print(player_a_team_stats)
+    player_b_team_stats = get_player_team_stats(player_b_team_id, teams)
+    #print(player_b_team_stats)
 
     if not player_a_team_stats or not player_b_team_stats:
         return "Error: Could not retrieve team stats for one or both players."
 
-    # Simple score using team wins
-    player_a_team_performance = float(player_a_team_stats['teamStats']['wins'])
-    player_b_team_performance = float(player_b_team_stats['teamStats']['wins'])
+    player_a_updated_proj = player_a_points * player_a_team_stats
+    print(player_a_updated_proj)
+    player_b_updated_proj = player_b_points * player_b_team_stats
+    print(player_b_updated_proj)
 
     # 3. Get Recent Player Performance
-    player_a_recent_games = get_nfl_games_for_player(player_a_id, number_of_games=3)  # Last 3 games
-    player_b_recent_games = get_nfl_games_for_player(player_b_id, number_of_games=3)
+    player_a_recent_games = get_nfl_games_for_player(player_a_id, number_of_games=week)  # Last 3 games
+    player_b_recent_games = get_nfl_games_for_player(player_b_id, number_of_games=week)
 
     if not player_a_recent_games or not player_b_recent_games:
         return "Error: Could not retrieve recent game data for one or both players."
@@ -106,3 +111,37 @@ def get_player_week_points(player_ID):
                 fantasy_points = fantasy_points/17
                 return fantasy_points
     return None
+
+def get_player_team_stats(player_team_id, teams_list):
+    """
+    Fetches the player team stats for the given player team ID.
+    """
+    for team in teams_list['body']:
+        if team.get('teamAbv') == player_team_id:
+            multiplier = 0
+            team_wins = int(team.get('wins'))
+            team_losses = int(team.get('loss'))
+            if team['currentStreak'].get('result') == "W":
+                streakFactor = int(team['currentStreak'].get('length'))
+                #print("streakFactor=", streakFactor)
+            else:
+                streakFactor = 1
+            if team_losses == 0 or team_wins == 0:
+                multiplier = team_wins * .01
+                multiplier = multiplier * (streakFactor / 2) + 1
+                return multiplier
+            elif team_losses == 1:
+                multiplier = (team_wins - 1) * .01
+                multiplier = multiplier * (streakFactor / 2) + 1
+                return multiplier
+            else:
+                multiplier = (team_wins/team_losses) * .01
+                multiplier = multiplier * (streakFactor / 2) + 1
+                return multiplier
+
+    return None
+
+
+
+
+
