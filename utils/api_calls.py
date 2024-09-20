@@ -11,6 +11,10 @@ RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")  # Make sure you set this in your .env 
 
 # Base URL for NFL projections
 BASE_URL = f"https://{RAPIDAPI_HOST}/getNFLProjections"
+BASE_TEAM_URL = f"https://{RAPIDAPI_HOST}/getNFLTeams"
+BASE_PLAYER_STATS_URL = f"https://{RAPIDAPI_HOST}/getNFLGamesForPlayer"
+
+
 
 
 def get_fantasy_point_projections(week='season', archive_season=2024, player_id=None, team_id=None, **scoring_params):
@@ -45,6 +49,126 @@ def get_fantasy_point_projections(week='season', archive_season=2024, player_id=
     try:
         response = requests.get(BASE_URL, headers=headers, params=params)
         response.raise_for_status()  # Raise an exception for 4XX/5XX errors
+        data = response.json()
+        return data  # You can further process this data if needed
+
+    except requests.exceptions.HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+    except Exception as err:
+        print(f"Other error occurred: {err}")
+
+    return None
+
+def get_nfl_teams(sort_by="standings", rosters=False, schedules=False, top_performers=True, team_stats=True, team_stats_season=2023):
+    """
+    Fetches NFL team information with optional parameters.
+
+    :param sort_by: Sort by standings or teamID (default: standings).
+    :param rosters: Whether to retrieve rosters for the teams (default: False).
+    :param schedules: Whether to retrieve schedules for the teams (default: False).
+    :param top_performers: Retrieve the best player in each category for each team (default: True).
+    :param team_stats: Retrieve season-long team statistics (default: True).
+    :param team_stats_season: Season year for team statistics (default: 2023).
+    :return: A JSON response with team information and statistics.
+    """
+
+    # Set up the query parameters
+    params = {
+        'sortBy': sort_by,
+        'rosters': str(rosters).lower(),  # Convert to string ('true'/'false')
+        'schedules': str(schedules).lower(),
+        'topPerformers': str(top_performers).lower(),
+        'teamStats': str(team_stats).lower(),
+        'teamStatsSeason': team_stats_season,
+    }
+
+    headers = {
+        'x-rapidapi-host': RAPIDAPI_HOST,
+        'x-rapidapi-key': RAPIDAPI_KEY,
+    }
+
+    try:
+        response = requests.get(BASE_TEAM_URL, headers=headers, params=params)
+        response.raise_for_status()
+        data = response.json()
+        return data  # You can further process this data if needed
+
+    except requests.exceptions.HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+    except Exception as err:
+        print(f"Other error occurred: {err}")
+
+    return None
+
+def get_nfl_games_for_player(player_id, fantasy_points=True, number_of_games=None, two_point_conversions=2,
+                             pass_yards=0.04, pass_td=4, pass_interceptions=-2, points_per_reception=1,
+                             carries=0.2, rush_yards=0.1, rush_td=6, fumbles=-2, receiving_yards=0.1,
+                             receiving_td=6, targets=0, def_td=6, xp_made=1, xp_missed=-1, fg_made=3,
+                             fg_missed=-3, season=None):
+    """
+    Fetches NFL game stats for a specific player.
+
+    :param player_id: The unique player ID (required).
+    :param fantasy_points: Whether to calculate fantasy points (default: True).
+    :param number_of_games: Limit the number of recent games returned (optional).
+    :param season: Season year (optional).
+    :param two_point_conversions: Fantasy points for two-point conversions (default: 2).
+    :param pass_yards: Fantasy points per passing yard (default: 0.04).
+    :param pass_td: Fantasy points per passing touchdown (default: 4).
+    :param pass_interceptions: Fantasy points penalty for interceptions (default: -2).
+    :param points_per_reception: Points per reception (default: 1).
+    :param carries: Points per carry (default: 0.2).
+    :param rush_yards: Points per rushing yard (default: 0.1).
+    :param rush_td: Points per rushing touchdown (default: 6).
+    :param fumbles: Fantasy points penalty for fumbles (default: -2).
+    :param receiving_yards: Points per receiving yard (default: 0.1).
+    :param receiving_td: Points per receiving touchdown (default: 6).
+    :param targets: Points per target (default: 0).
+    :param def_td: Points per defensive touchdown (default: 6).
+    :param xp_made: Points for extra points made (default: 1).
+    :param xp_missed: Penalty for extra points missed (default: -1).
+    :param fg_made: Points per field goal made (default: 3).
+    :param fg_missed: Penalty for field goal missed (default: -3).
+    :return: A JSON response with the player's game stats.
+    """
+
+    # Set up the query parameters
+    params = {
+        'playerID': player_id,
+        'fantasyPoints': str(fantasy_points).lower(),
+        'twoPointConversions': two_point_conversions,
+        'passYards': pass_yards,
+        'passTD': pass_td,
+        'passInterceptions': pass_interceptions,
+        'pointsPerReception': points_per_reception,
+        'carries': carries,
+        'rushYards': rush_yards,
+        'rushTD': rush_td,
+        'fumbles': fumbles,
+        'receivingYards': receiving_yards,
+        'receivingTD': receiving_td,
+        'targets': targets,
+        'defTD': def_td,
+        'xpMade': xp_made,
+        'xpMissed': xp_missed,
+        'fgMade': fg_made,
+        'fgMissed': fg_missed,
+    }
+
+    if number_of_games:
+        params['numberOfGames'] = number_of_games
+
+    if season:
+        params['season'] = season
+
+    headers = {
+        'x-rapidapi-host': RAPIDAPI_HOST,
+        'x-rapidapi-key': RAPIDAPI_KEY,
+    }
+
+    try:
+        response = requests.get(BASE_PLAYER_STATS_URL, headers=headers, params=params)
+        response.raise_for_status()
         data = response.json()
         return data  # You can further process this data if needed
 
