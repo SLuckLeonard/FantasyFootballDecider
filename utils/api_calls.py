@@ -13,6 +13,7 @@ RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")  # Make sure you set this in your .env 
 BASE_URL = f"https://{RAPIDAPI_HOST}/getNFLProjections"
 BASE_TEAM_URL = f"https://{RAPIDAPI_HOST}/getNFLTeams"
 BASE_PLAYER_STATS_URL = f"https://{RAPIDAPI_HOST}/getNFLGamesForPlayer"
+BASE_WEEKLY_GAMES_URL = f"https://{RAPIDAPI_HOST}/getNFLGamesForWeek"
 
 
 
@@ -171,6 +172,44 @@ def get_nfl_games_for_player(player_id, fantasy_points=True, number_of_games=Non
         response.raise_for_status()
         data = response.json()
         return data  # You can further process this data if needed
+
+    except requests.exceptions.HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+    except Exception as err:
+        print(f"Other error occurred: {err}")
+
+    return None
+
+def get_nfl_games_for_week(week, season_type="reg", season=None):
+    """
+    Fetches NFL games for a given week in a specific season.
+
+    :param week: The NFL week number (1-18) or 'all' to get all games for the season.
+    :param season_type: The type of season ('reg', 'post', 'pre', or 'all'). Default is 'reg'.
+    :param season: The year of the NFL season (e.g., 2024). If not specified, defaults to current season.
+    :return: A JSON response with game details for the specified week.
+    """
+
+    # Set up the query parameters
+    params = {
+        'week': week,
+        'seasonType': season_type,
+    }
+
+    if season:
+        params['season'] = season
+
+    headers = {
+        'x-rapidapi-host': RAPIDAPI_HOST,
+        'x-rapidapi-key': RAPIDAPI_KEY,
+    }
+
+    try:
+        # Perform the GET request
+        response = requests.get(BASE_WEEKLY_GAMES_URL, headers=headers, params=params)
+        response.raise_for_status()  # Raise an error for bad responses
+        data = response.json()  # Parse the JSON response
+        return data  # Return the game data
 
     except requests.exceptions.HTTPError as http_err:
         print(f"HTTP error occurred: {http_err}")

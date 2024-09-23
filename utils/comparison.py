@@ -1,4 +1,4 @@
-from utils.api_calls import get_fantasy_point_projections, get_nfl_teams, get_nfl_games_for_player
+from utils.api_calls import get_fantasy_point_projections, get_nfl_teams, get_nfl_games_for_player, get_nfl_games_for_week
 
 
 def compare_players(player_a_id, player_b_id, week):
@@ -18,9 +18,7 @@ def compare_players(player_a_id, player_b_id, week):
         return "Error: Could not retrieve projections for one or both players."
 
     player_a_points = get_player_week_points(player_a_id)
-    print(player_a_points)
     player_b_points = get_player_week_points(player_b_id)
-    print(player_b_points)
 
     # 2. Get Team Performance
     teams = get_nfl_teams()
@@ -28,9 +26,7 @@ def compare_players(player_a_id, player_b_id, week):
         return "Error: Could not retrieve team information."
 
     player_a_team_id = str(player_a_projections['body'].get('team'))
-    #print(player_a_team_id)
     player_b_team_id = str(player_b_projections['body'].get('team'))
-    #print(player_b_team_id)
 
     # Extract team performance (e.g., win/loss record, standings)
     player_a_team_stats = get_player_team_stats(player_a_team_id, teams)
@@ -42,9 +38,7 @@ def compare_players(player_a_id, player_b_id, week):
         return "Error: Could not retrieve team stats for one or both players."
 
     player_a_updated_proj = player_a_points * player_a_team_stats
-    print(player_a_updated_proj)
     player_b_updated_proj = player_b_points * player_b_team_stats
-    print(player_b_updated_proj)
 
     # 3. Get Recent Player Performance
     player_a_recent_games = get_nfl_games_for_player(player_a_id, number_of_games=week-1)
@@ -62,19 +56,23 @@ def compare_players(player_a_id, player_b_id, week):
         return total_points
 
     player_a_season_performance = calculate_average_fantasy_points(player_a_recent_games)/(week - 1)
-    print(player_a_season_performance)
     player_b_season_performance = calculate_average_fantasy_points(player_b_recent_games)/(week - 1)
-    print(player_b_season_performance)
 
     # 4. Calculate Final Scores
-    # Weighted score: 50% on fantasy projection, 25% on team performance, and 25% on recent performance
-
     player_a_solo_pred_score = (player_a_updated_proj + player_a_season_performance)/2
-    print(player_a_solo_pred_score)
     player_b_solo_pred_score = (player_b_updated_proj + player_b_season_performance)/2
-    print(player_b_solo_pred_score)
 
+    # 5. Calculate opponent toughness
+    player_a_position = get_player_pos(player_a_projections)
+    player_b_position = get_player_pos(player_b_projections)
+    player_a_matchup_avg_points_allowed = get_player_matchup_stats(player_a_team_id, week, player_a_position)
+    player_b_matchup_avg_points_allowed = get_player_matchup_stats(player_b_team_id, week, player_b_position)
 
+    # 6. Take Final Scores with opponent toughness
+    player_a_score = float((player_a_solo_pred_score + player_a_matchup_avg_points_allowed)/2)
+    print(player_a_score)
+    player_b_score = float((player_b_solo_pred_score + player_b_matchup_avg_points_allowed)/2)
+    print(player_b_score)
 
     # 5. Compare and Return the Result
     if player_a_score > player_b_score:
@@ -145,7 +143,44 @@ def get_player_team_stats(player_team_id, teams_list):
 
     return None
 
+def get_player_matchup_stats(team_id, week, player_pos):
+    weekly_matchups = get_nfl_games_for_week(week=week, season_type="reg", season="2024")
+    opponent = ''
+    avg_position_points = float(0)
+    for game in weekly_matchups['body']:
+        if game['home'] == team_id or game['away'] == team_id:
+            if game['home'] == team_id:
+                opponent = game['away']
+            else:
+                opponent = game['home']
+    schedules = get_nfl_teams(sort_by=opponent, rosters=False, schedules=False, top_performers=False, team_stats=True, team_stats_season=2024)
+    for team in schedules['body']:
+        if team['teamAbv'] == opponent:
+            if player_pos == 'QB':
+                team_passTDAllowed = float(team['teamStats']['Defense']['passingTDAllowed'])
+                team_passingYardsAllowed = float(team['teamStats']['Defense']['passingYardsAllowed'])
+                team_defensiveInterceptions = float(team['teamStats']['Defense']['defensiveInterceptions'])
+                season_position_points = float((team_passingYardsAllowed*.04) + (team_passTDAllowed*4) - (team_defensiveInterceptions*2))
+                return season_position_points/(week-1) + 5
+
+            elif player_pos == 'WR':
+                team_passTDAllowed = float(team['teamStats']['Defense']['passingTDAllowed'])
+                team_passingYardsAllowed = float(team['teamStats']['Defense']['passingYardsAllowed'])
+                season_position_points = float((team_passingYardsAllowed*.1) + (team_passTDAllowed*6))
+                return season_position_points/(week-1) / 2
+
+            elif player_pos == 'RB':
+                print(player_pos)
+            elif player_pos == 'TE':
+                print(player_pos)
+            else:
+                return None
 
 
+    return None
 
+
+def get_player_pos(player_projections):
+    position = player_projections['body']['pos']
+    return position
 
