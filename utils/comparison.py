@@ -146,7 +146,6 @@ def get_player_team_stats(player_team_id, teams_list):
 def get_player_matchup_stats(team_id, week, player_pos):
     weekly_matchups = get_nfl_games_for_week(week=week, season_type="reg", season="2024")
     opponent = ''
-    avg_position_points = float(0)
     for game in weekly_matchups['body']:
         if game['home'] == team_id or game['away'] == team_id:
             if game['home'] == team_id:
@@ -170,9 +169,16 @@ def get_player_matchup_stats(team_id, week, player_pos):
                 return season_position_points/(week-1) / 2
 
             elif player_pos == 'RB':
-                print(player_pos)
+                team_rushTDAllowed = float(team['teamStats']['Defense']['rushingTDAllowed'])
+                team_rushingYardsAllowed = float(team['teamStats']['Defense']['rushingYardsAllowed'])
+                season_position_points = float((team_rushingYardsAllowed*.1) + (team_rushTDAllowed*6))
+                return season_position_points/(week-1) + 5
+
             elif player_pos == 'TE':
-                print(player_pos)
+                team_passTDAllowed = float(team['teamStats']['Defense']['passingTDAllowed'])
+                team_passingYardsAllowed = float(team['teamStats']['Defense']['passingYardsAllowed'])
+                season_position_points = float((team_passingYardsAllowed * .1) + (team_passTDAllowed * 6))
+                return season_position_points/(week-1) / 3
             else:
                 return None
 
