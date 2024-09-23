@@ -2,9 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Comparison</title>
 </head>
 <body>
+    <h1>Compare NFL Players</h1>
+
+    <form action="/compare" method="POST">
+        <label for="player_a">Player A Name:</label>
+        <input type="text" id="player_a" name="player_a" required><br><br>
+
+        <label for="player_b">Player B Name:</label>
+        <input type="text" id="player_b" name="player_b" required><br><br>
+
+        <label for="week">Week:</label>
+        <input type="number" id="week" name="week" min="1" max="17" required><br><br>
+
+        <input type="submit" value="Compare Players">
+    </form>
+
+    {% if result %}
+    <h2>Comparison Result:</h2>
+    <p>{{ result }}</p>
+    {% endif %}
 
 </body>
 </html>

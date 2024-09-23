@@ -1,7 +1,7 @@
 from utils.api_calls import get_fantasy_point_projections, get_nfl_teams, get_nfl_games_for_player, get_nfl_games_for_week
 
 
-def compare_players(player_a_id, player_b_id, week):
+def compare_players(player_a_id, player_b_id, week, player_a_name, player_b_name):
     """
     Compares two NFL players based on fantasy point projections, team performance, and recent stats.
 
@@ -76,9 +76,9 @@ def compare_players(player_a_id, player_b_id, week):
 
     # 5. Compare and Return the Result
     if player_a_score > player_b_score:
-        return f"Start Player A (ID: {player_a_id}) with a score of {player_a_score:.2f} over Player B (ID: {player_b_id}) with a score of {player_b_score:.2f}"
+        return f"Start Player A (ID: {player_a_name}) with a score of {player_a_score:.2f} over Player B (ID: {player_b_name}) with a score of {player_b_score:.2f}"
     else:
-        return f"Start Player B (ID: {player_b_id}) with a score of {player_b_score:.2f} over Player A (ID: {player_a_id}) with a score of {player_a_score:.2f}"
+        return f"Start Player B (ID: {player_b_name}) with a score of {player_b_score:.2f} over Player A (ID: {player_a_name}) with a score of {player_a_score:.2f}"
 
 def get_player_id(player_name):
     """

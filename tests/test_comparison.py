@@ -12,7 +12,7 @@ if __name__ == "__main__":
         print(f"Found Patrick Mahomes' ID: {patrick_mahomes_id}")
 
         # Compare Aaron Rodgers and Patrick Mahomes
-        print(compare_players(aaron_rodgers_id, patrick_mahomes_id, 4))
+        print(compare_players(aaron_rodgers_id, patrick_mahomes_id, 4, "Aaron Rodgers", "Patrick Mahomes"))
     else:
         print("Failed to retrieve player IDs for Aaron Rodgers or Patrick Mahomes.")
 
@@ -23,7 +23,7 @@ if __name__ == "__main__":
         print(f"Found Ladd McConkey's ID: {ladd_mcconkey_id}")
         print(f"Found Xavier Worthy's ID: {xavier_worthy_id}")
 
-        print(compare_players(ladd_mcconkey_id, xavier_worthy_id, 4))
+        print(compare_players(ladd_mcconkey_id, xavier_worthy_id, 4, "Ladd McConkey", "Xavier Worthy"))
     else:
         print("Failed to retrieve player IDs for Ladd McConkey and Xavier Worthy")
 
@@ -34,7 +34,7 @@ if __name__ == "__main__":
         print(f"Found Breece Hall's ID: {breece_hall_id}")
         print(f"Found Bijan Robinson's ID: {bijan_robinson_id}")
 
-        print(compare_players(breece_hall_id, bijan_robinson_id, 4))
+        print(compare_players(breece_hall_id, bijan_robinson_id, 4, "Breece Hall", "Bijan Robinson"))
     else:
         print("Failed to retrieve player IDs for Breece Hall and Bijan Robinson")
 
@@ -45,6 +45,6 @@ if __name__ == "__main__":
         print(f"Found Brock Bowers' ID: {brock_bowers_id}")
         print(f"Found Travis Kelce's ID: {travis_kelce_id}")
 
-        print(compare_players(brock_bowers_id, travis_kelce_id, 4))
+        print(compare_players(brock_bowers_id, travis_kelce_id, 4, "Brock Bowers", "Travis Kelce"))
     else:
         print("Failed to retrieve player IDs for Brock Bowers and Travis Kelce")
