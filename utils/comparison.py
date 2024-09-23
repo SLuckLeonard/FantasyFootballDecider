@@ -47,8 +47,8 @@ def compare_players(player_a_id, player_b_id, week):
     print(player_b_updated_proj)
 
     # 3. Get Recent Player Performance
-    player_a_recent_games = get_nfl_games_for_player(player_a_id, number_of_games=week)  # Last 3 games
-    player_b_recent_games = get_nfl_games_for_player(player_b_id, number_of_games=week)
+    player_a_recent_games = get_nfl_games_for_player(player_a_id, number_of_games=week-1)
+    player_b_recent_games = get_nfl_games_for_player(player_b_id, number_of_games=week-1)
 
     if not player_a_recent_games or not player_b_recent_games:
         return "Error: Could not retrieve recent game data for one or both players."
@@ -56,21 +56,25 @@ def compare_players(player_a_id, player_b_id, week):
     # Calculate average fantasy points for the last 3 games
     def calculate_average_fantasy_points(games):
         total_points = 0
-        game_count = len(games['games'])
-        for game in games['games']:
-            total_points += float(game['fantasyPoints'])
-        return total_points / game_count if game_count > 0 else 0
+        for game in games['body']:
+            gamepoints = float(games['body'][game].get('fantasyPoints'))
+            total_points += gamepoints
+        return total_points
 
-    player_a_recent_performance = calculate_average_fantasy_points(player_a_recent_games)
-    player_b_recent_performance = calculate_average_fantasy_points(player_b_recent_games)
+    player_a_season_performance = calculate_average_fantasy_points(player_a_recent_games)/(week - 1)
+    print(player_a_season_performance)
+    player_b_season_performance = calculate_average_fantasy_points(player_b_recent_games)/(week - 1)
+    print(player_b_season_performance)
 
     # 4. Calculate Final Scores
     # Weighted score: 50% on fantasy projection, 25% on team performance, and 25% on recent performance
-    def calculate_score(fantasy_points, team_performance, recent_performance):
-        return (fantasy_points * 0.5) + (team_performance * 0.25) + (recent_performance * 0.25)
 
-    player_a_score = calculate_score(player_a_points, player_a_team_performance, player_a_recent_performance)
-    player_b_score = calculate_score(player_b_points, player_b_team_performance, player_b_recent_performance)
+    player_a_solo_pred_score = (player_a_updated_proj + player_a_season_performance)/2
+    print(player_a_solo_pred_score)
+    player_b_solo_pred_score = (player_b_updated_proj + player_b_season_performance)/2
+    print(player_b_solo_pred_score)
+
+
 
     # 5. Compare and Return the Result
     if player_a_score > player_b_score:
