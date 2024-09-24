@@ -55,12 +55,26 @@ def compare_players(player_a_id, player_b_id, week, player_a_name, player_b_name
             total_points += gamepoints
         return total_points
 
+    def get_last_week_performance(games):
+        points = 0
+        if games['body']:  # Ensure the dictionary is not empty
+            first_game_key = next(iter(games['body']))  # Get the first key
+            first_game = games['body'][first_game_key]  # Access the first game's details
+            points = float(first_game.get('fantasyPoints', 0))  # Retrieve 'fantasyPoints' or default to 0
+        return points
+
+
     player_a_season_performance = calculate_average_fantasy_points(player_a_recent_games)/(week - 1)
     player_b_season_performance = calculate_average_fantasy_points(player_b_recent_games)/(week - 1)
 
+    #Get just last week
+    player_a_lastweek_performance = get_last_week_performance(player_a_recent_games)
+    player_b_lastweek_performance = get_last_week_performance(player_b_recent_games)
+
+
     # 4. Calculate Final Scores
-    player_a_solo_pred_score = (player_a_updated_proj + player_a_season_performance)/2
-    player_b_solo_pred_score = (player_b_updated_proj + player_b_season_performance)/2
+    player_a_solo_pred_score = (player_a_updated_proj + player_a_season_performance + player_a_season_performance + player_a_lastweek_performance + player_a_lastweek_performance)/5
+    player_b_solo_pred_score = (player_b_updated_proj + player_b_season_performance + player_b_season_performance + player_b_lastweek_performance + player_b_lastweek_performance)/5
 
     # 5. Calculate opponent toughness
     player_a_position = get_player_pos(player_a_projections)
@@ -69,9 +83,9 @@ def compare_players(player_a_id, player_b_id, week, player_a_name, player_b_name
     player_b_matchup_avg_points_allowed = get_player_matchup_stats(player_b_team_id, week, player_b_position)
 
     # 6. Take Final Scores with opponent toughness
-    player_a_score = float((player_a_solo_pred_score + player_a_matchup_avg_points_allowed)/2)
+    player_a_score = float((player_a_solo_pred_score + player_a_solo_pred_score + player_a_matchup_avg_points_allowed)/3)
     print(player_a_score)
-    player_b_score = float((player_b_solo_pred_score + player_b_matchup_avg_points_allowed)/2)
+    player_b_score = float((player_b_solo_pred_score + player_b_solo_pred_score + player_b_matchup_avg_points_allowed)/3)
     print(player_b_score)
 
     # 5. Compare and Return the Result
