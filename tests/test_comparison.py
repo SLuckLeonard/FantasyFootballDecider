@@ -29,12 +29,13 @@ if __name__ == "__main__":
 
     breece_hall_id = get_player_id("Breece Hall")
     bijan_robinson_id = get_player_id("Bijan Robinson")
+    bucky_irving_id = get_player_id("Bucky Irving")
 
-    if ladd_mcconkey_id and xavier_worthy_id:
+    if breece_hall_id and bucky_irving_id:
         print(f"Found Breece Hall's ID: {breece_hall_id}")
-        print(f"Found Bijan Robinson's ID: {bijan_robinson_id}")
+        print(f"Found Bucky Irving's ID: {bijan_robinson_id}")
 
-        print(compare_players(breece_hall_id, bijan_robinson_id, 4, "Breece Hall", "Bijan Robinson"))
+        print(compare_players(breece_hall_id, bucky_irving_id, 4, "Breece Hall", "Bucky Irving"))
     else:
         print("Failed to retrieve player IDs for Breece Hall and Bijan Robinson")
 
