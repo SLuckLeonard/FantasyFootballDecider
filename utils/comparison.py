@@ -263,7 +263,6 @@ def get_team_logo(team_name):
     for team in data['body']:
         if team['teamAbv'].lower() == team_name.lower():
             logo_url = team['nflComLogo1']
-            print(f"Logo for {team_name}: {logo_url}")
             return logo_url
 
     print(f"Team '{team_name}' not found.")
