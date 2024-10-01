@@ -185,18 +185,29 @@ def get_player_matchup_stats(team_id, week, player_pos, recent_games):
                 team_passingYardsAllowed = float(team['teamStats']['Defense']['passingYardsAllowed'])
                 season_position_points = float((team_passingYardsAllowed*.1) + (team_passTDAllowed*6))
                 average_rushing_points = 0
+                average_throwing_points = 0
+                average_touchdown_points = 0
                 for game in recent_games['body']:
                     if 'Rushing' in recent_games['body'][game]:
                         rushing_gamepoints = float(recent_games['body'][game]['Rushing'].get('rushYds'))
                         average_rushing_points += rushing_gamepoints
+                    if 'Passing' in recent_games['body'][game]:
+                        throwing_gamepoints = float(recent_games['body'][game]['Passing'].get('passYds'))
+                        touchdown_gamepoints = float(recent_games['body'][game]['Passing'].get('passTD'))
+                        average_throwing_points += throwing_gamepoints
+                        average_touchdown_points += touchdown_gamepoints
                 average_rushing_points = float((average_rushing_points / (week - 1)) * .1)
-                return (season_position_points / (week - 1) / 2) + average_rushing_points
+                average_throwing_points = float((average_throwing_points / (week - 1)) * .04)
+                average_touchdown_points = float((average_touchdown_points / (week - 1)) * 4)
+                return (season_position_points / (week - 1) / 2) + average_rushing_points + average_throwing_points + average_touchdown_points
 
             elif player_pos == 'RB':
                 team_rushTDAllowed = float(team['teamStats']['Defense']['rushingTDAllowed'])
                 team_rushingYardsAllowed = float(team['teamStats']['Defense']['rushingYardsAllowed'])
                 season_position_points = float((team_rushingYardsAllowed*.1) + (team_rushTDAllowed*6))
                 average_receiving_points = 0
+                average_throwing_points = 0
+                average_touchdown_points = 0
                 for game in recent_games['body']:
                     if 'Receiving' in recent_games['body'][game]:
                         receiving_yardpoints = float(recent_games['body'][game]['Receiving'].get('recYds'))
@@ -205,8 +216,15 @@ def get_player_matchup_stats(team_id, week, player_pos, recent_games):
                         average_receiving_points = average_receiving_points + (receiving_yardpoints*.1) + (receiving_points) + (receiving_td * 6)
                     else:
                         average_receiving_points += 0
+                    if 'Passing' in recent_games['body'][game]:
+                        throwing_gamepoints = float(recent_games['body'][game]['Passing'].get('passYds'))
+                        touchdown_gamepoints = float(recent_games['body'][game]['Passing'].get('passTD'))
+                        average_throwing_points += throwing_gamepoints
+                        average_touchdown_points += touchdown_gamepoints
                 average_receiving_points = average_receiving_points / (week - 1)
-                return season_position_points/(week-1) + average_receiving_points
+                average_throwing_points = float((average_throwing_points / (week - 1)) * .04)
+                average_touchdown_points = float((average_touchdown_points / (week - 1)) * 4)
+                return season_position_points/(week-1) + average_receiving_points + average_touchdown_points + average_throwing_points
 
             elif player_pos == 'TE':
                 team_passTDAllowed = float(team['teamStats']['Defense']['passingTDAllowed'])

@@ -34,7 +34,6 @@ if __name__ == "__main__":
     if breece_hall_id and bucky_irving_id:
         print(f"Found Breece Hall's ID: {breece_hall_id}")
         print(f"Found Bucky Irving's ID: {bijan_robinson_id}")
-
         print(compare_players(breece_hall_id, bucky_irving_id, 4, "Breece Hall", "Bucky Irving"))
     else:
         print("Failed to retrieve player IDs for Breece Hall and Bijan Robinson")
