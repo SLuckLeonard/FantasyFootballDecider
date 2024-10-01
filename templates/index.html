@@ -24,7 +24,17 @@
     {% if result %}
     <h2>Comparison Result:</h2>
     <p>{{ result }}</p>
-    {% endif %}
 
+    <!-- Display player headshots -->
+    <div>
+        <h3>{{ player_a_name }}</h3>
+        <img src="{{ player_a_headshot }}" alt="{{ player_a_name }} headshot" style="width:150px; height:auto;">
+    </div>
+
+    <div>
+        <h3>{{ player_b_name }}</h3>
+        <img src="{{ player_b_headshot }}" alt="{{ player_b_name }} headshot" style="width:150px; height:auto;">
+    </div>
+    {% endif %}
 </body>
 </html>

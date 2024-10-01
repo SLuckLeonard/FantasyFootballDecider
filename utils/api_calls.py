@@ -14,8 +14,7 @@ BASE_URL = f"https://{RAPIDAPI_HOST}/getNFLProjections"
 BASE_TEAM_URL = f"https://{RAPIDAPI_HOST}/getNFLTeams"
 BASE_PLAYER_STATS_URL = f"https://{RAPIDAPI_HOST}/getNFLGamesForPlayer"
 BASE_WEEKLY_GAMES_URL = f"https://{RAPIDAPI_HOST}/getNFLGamesForWeek"
-
-
+BASE_PLAYER_INFO_URL = f"https://{RAPIDAPI_HOST}/getNFLPlayerInfo"
 
 
 def get_fantasy_point_projections(week='season', archive_season=2024, player_id=None, team_id=None, **scoring_params):
@@ -210,6 +209,49 @@ def get_nfl_games_for_week(week, season_type="reg", season=None):
         response.raise_for_status()  # Raise an error for bad responses
         data = response.json()  # Parse the JSON response
         return data  # Return the game data
+
+    except requests.exceptions.HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+    except Exception as err:
+        print(f"Other error occurred: {err}")
+
+    return None
+
+def get_nfl_player_headshot(player_name, get_stats=True):
+    """
+    Fetches an NFL player's ESPN headshot based on their name.
+
+    :param player_name: The player's name (e.g., 'keenan_a' for Keenan Allen).
+    :param get_stats: Whether to retrieve player stats as well (default: True).
+    :return: The URL of the player's ESPN headshot, or None if not found.
+    """
+    # Set up the query parameters
+    params = {
+        'playerName': player_name,
+        'getStats': str(get_stats).lower(),  # Convert to string ('true'/'false')
+    }
+
+    headers = {
+        'x-rapidapi-host': RAPIDAPI_HOST,
+        'x-rapidapi-key': RAPIDAPI_KEY,
+    }
+
+    try:
+        # Perform the GET request
+        response = requests.get(BASE_PLAYER_INFO_URL, headers=headers, params=params)
+        response.raise_for_status()  # Raise an error for bad responses
+
+        # Parse the JSON response
+        data = response.json()
+
+
+        # Extract ESPN headshot URL
+        espn_headshot = data['body'][0].get('espnHeadshot')
+
+        if espn_headshot:
+            return espn_headshot
+        else:
+            print(f"No headshot found for player: {player_name}")
 
     except requests.exceptions.HTTPError as http_err:
         print(f"HTTP error occurred: {http_err}")

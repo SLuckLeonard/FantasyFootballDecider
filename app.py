@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from utils.comparison import compare_players, get_player_id
+from utils.comparison import compare_players, get_player_id, get_player_headshot  # Assuming get_player_headshot exists
 
 app = Flask(__name__)
 
@@ -21,12 +21,24 @@ def compare():
 
     if not player_a_id or not player_b_id:
         result = "Error: Could not find one or both players."
-    else:
-        # Perform the comparison
-        result = compare_players(player_a_id, player_b_id, week, player_a_name, player_b_name)
+        return render_template('index.html', result=result)
 
-    # Pass the result back to the template for rendering
-    return render_template('index.html', result=result)
+    # Fetch headshots for both players
+    player_a_headshot = get_player_headshot(player_a_name)
+    player_b_headshot = get_player_headshot(player_b_name)
+
+    # Perform the comparison
+    result = compare_players(player_a_id, player_b_id, week, player_a_name, player_b_name)
+
+    # Pass the result and headshots back to the template for rendering
+    return render_template(
+        'index.html',
+        result=result,
+        player_a_name=player_a_name,
+        player_b_name=player_b_name,
+        player_a_headshot=player_a_headshot,
+        player_b_headshot=player_b_headshot
+    )
 
 
 if __name__ == '__main__':

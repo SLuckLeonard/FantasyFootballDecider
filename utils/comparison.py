@@ -1,4 +1,4 @@
-from utils.api_calls import get_fantasy_point_projections, get_nfl_teams, get_nfl_games_for_player, get_nfl_games_for_week
+from utils.api_calls import get_fantasy_point_projections, get_nfl_teams, get_nfl_games_for_player, get_nfl_games_for_week, get_nfl_player_headshot
 
 
 def compare_players(player_a_id, player_b_id, week, player_a_name, player_b_name):
@@ -242,3 +242,6 @@ def get_player_pos(player_projections):
     position = player_projections['body']['pos']
     return position
 
+def get_player_headshot(player_name):
+    headshot = get_nfl_player_headshot(player_name)
+    return headshot
