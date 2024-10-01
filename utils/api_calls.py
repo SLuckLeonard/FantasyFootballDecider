@@ -244,12 +244,14 @@ def get_nfl_player_headshot(player_name, get_stats=True):
         # Parse the JSON response
         data = response.json()
 
-
         # Extract ESPN headshot URL
         espn_headshot = data['body'][0].get('espnHeadshot')
 
+        # Extract Team name
+        team_name = data['body'][0].get('team')
+
         if espn_headshot:
-            return espn_headshot
+            return espn_headshot, team_name
         else:
             print(f"No headshot found for player: {player_name}")
 
@@ -259,3 +261,4 @@ def get_nfl_player_headshot(player_name, get_stats=True):
         print(f"Other error occurred: {err}")
 
     return None
+

@@ -25,8 +25,9 @@ def compare_players(player_a_id, player_b_id, week, player_a_name, player_b_name
     if not teams:
         return "Error: Could not retrieve team information."
 
-    player_a_team_id = str(player_a_projections['body'].get('team'))
-    player_b_team_id = str(player_b_projections['body'].get('team'))
+    player_a_team_id = get_player_team(player_a_projections)
+    player_b_team_id = get_player_team(player_b_projections)
+
 
     # Extract team performance (e.g., win/loss record, standings)
     player_a_team_stats = get_player_team_stats(player_a_team_id, teams)
@@ -86,7 +87,7 @@ def compare_players(player_a_id, player_b_id, week, player_a_name, player_b_name
     player_a_score = float(((player_a_solo_pred_score * 7) + player_a_matchup_avg_points_allowed)/8)
     player_b_score = float(((player_b_solo_pred_score * 7) + player_b_matchup_avg_points_allowed)/8)
 
-    # 5. Compare and Return the Result
+    # 7. Compare and Return the Result
     if player_a_score > player_b_score:
         return f"Start Player A (ID: {player_a_name}) with a score of {player_a_score:.2f} over Player B (ID: {player_b_name}) with a score of {player_b_score:.2f}"
     else:
@@ -243,5 +244,27 @@ def get_player_pos(player_projections):
     return position
 
 def get_player_headshot(player_name):
-    headshot = get_nfl_player_headshot(player_name)
-    return headshot
+    headshot, team = get_nfl_player_headshot(player_name)
+    return headshot, team
+
+def get_player_team(player_projections):
+    player_team_id = str(player_projections['body'].get('team'))
+    return player_team_id
+
+def get_team_logo(team_name):
+    # Fetch the NFL teams data
+    data = get_nfl_teams()
+
+    if data is None:
+        print("Failed to retrieve team data.")
+        return
+
+    # Loop through the teams and find the one matching the given team name
+    for team in data['body']:
+        if team['teamAbv'].lower() == team_name.lower():
+            logo_url = team['nflComLogo1']
+            print(f"Logo for {team_name}: {logo_url}")
+            return logo_url
+
+    print(f"Team '{team_name}' not found.")
+    return None

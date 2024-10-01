@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from utils.comparison import compare_players, get_player_id, get_player_headshot  # Assuming get_player_headshot exists
+from utils.comparison import compare_players, get_player_id, get_player_headshot, get_team_logo
 
 app = Flask(__name__)
 
@@ -24,8 +24,13 @@ def compare():
         return render_template('index.html', result=result)
 
     # Fetch headshots for both players
-    player_a_headshot = get_player_headshot(player_a_name)
-    player_b_headshot = get_player_headshot(player_b_name)
+    player_a_headshot, team1 = get_player_headshot(player_a_name)
+    player_b_headshot, team2 = get_player_headshot(player_b_name)
+
+    player_a_team_logo = get_team_logo(team1)
+    player_b_team_logo = get_team_logo(team2)
+
+
 
     # Perform the comparison
     result = compare_players(player_a_id, player_b_id, week, player_a_name, player_b_name)
@@ -37,7 +42,9 @@ def compare():
         player_a_name=player_a_name,
         player_b_name=player_b_name,
         player_a_headshot=player_a_headshot,
-        player_b_headshot=player_b_headshot
+        player_b_headshot=player_b_headshot,
+        player_a_team_logo=player_a_team_logo,
+        player_b_team_logo=player_b_team_logo
     )
 
 
