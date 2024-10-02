@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 from utils.comparison import (compare_players, get_player_id, get_player_headshot, get_team_logo,
-                              get_player_pos, get_nfl_games_for_player, calculate_average_fantasy_points)
+                              get_player_pos, get_nfl_games_for_player, calculate_average_fantasy_points,
+                              get_last_week_performance)
 from utils.api_calls import get_fantasy_point_projections
 
 app = Flask(__name__)
@@ -44,6 +45,9 @@ def compare():
     player_a_average_points = round(float(calculate_average_fantasy_points(player_a_recent_games) / (week - 1)), 2)
     player_b_average_points = round(float(calculate_average_fantasy_points(player_b_recent_games) / (week - 1)), 2)
 
+    player_a_lastweek_performance = get_last_week_performance(player_a_recent_games)
+    player_b_lastweek_performance = get_last_week_performance(player_b_recent_games)
+
     # Perform the comparison
     result = compare_players(player_a_id, player_b_id, week, player_a_name, player_b_name)
 
@@ -60,7 +64,9 @@ def compare():
         player_a_pos=player_a_pos,
         player_b_pos=player_b_pos,
         player_a_average_points=player_a_average_points,
-        player_b_average_points=player_b_average_points
+        player_b_average_points=player_b_average_points,
+        player_a_lastweek_performance=player_a_lastweek_performance,
+        player_b_lastweek_performance=player_b_lastweek_performance
     )
 
 

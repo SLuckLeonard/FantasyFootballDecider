@@ -51,14 +51,6 @@ def compare_players(player_a_id, player_b_id, week, player_a_name, player_b_name
     if not player_a_recent_games or not player_b_recent_games:
         return "Error: Could not retrieve recent game data for one or both players."
 
-    def get_last_week_performance(games):
-        points = 0
-        if games['body']:  # Ensure the dictionary is not empty
-            first_game_key = next(iter(games['body']))  # Get the first key
-            first_game = games['body'][first_game_key]  # Access the first game's details
-            points = float(first_game.get('fantasyPoints', 0))  # Retrieve 'fantasyPoints' or default to 0
-        return points
-
     player_a_season_performance = calculate_average_fantasy_points(player_a_recent_games)/(week - 1)
     player_b_season_performance = calculate_average_fantasy_points(player_b_recent_games)/(week - 1)
 
@@ -294,3 +286,12 @@ def get_player_stats(player_id):
     data = get_nfl_games_for_player(player_id)
     print(data)
     return None
+
+
+def get_last_week_performance(games):
+    points = 0
+    if games['body']:
+        first_game_key = next(iter(games['body']))
+        first_game = games['body'][first_game_key]
+        points = float(first_game['fantasyPointsDefault'].get('PPR', 0))
+    return points
