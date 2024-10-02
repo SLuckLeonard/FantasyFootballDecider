@@ -59,7 +59,9 @@ def get_fantasy_point_projections(week='season', archive_season=2024, player_id=
 
     return None
 
-def get_nfl_teams(sort_by="standings", rosters=False, schedules=False, top_performers=True, team_stats=True, team_stats_season=2023):
+
+def get_nfl_teams(sort_by="standings", rosters=False, schedules=False, top_performers=True,
+                  team_stats=True, team_stats_season=2023):
     """
     Fetches NFL team information with optional parameters.
 
@@ -99,6 +101,7 @@ def get_nfl_teams(sort_by="standings", rosters=False, schedules=False, top_perfo
         print(f"Other error occurred: {err}")
 
     return None
+
 
 def get_nfl_games_for_player(player_id, fantasy_points=True, number_of_games=None, two_point_conversions=2,
                              pass_yards=0.04, pass_td=4, pass_interceptions=-2, points_per_reception=1,
@@ -179,6 +182,7 @@ def get_nfl_games_for_player(player_id, fantasy_points=True, number_of_games=Non
 
     return None
 
+
 def get_nfl_games_for_week(week, season_type="reg", season=None):
     """
     Fetches NFL games for a given week in a specific season.
@@ -216,6 +220,7 @@ def get_nfl_games_for_week(week, season_type="reg", season=None):
         print(f"Other error occurred: {err}")
 
     return None
+
 
 def get_nfl_player_headshot(player_name, get_stats=True):
     """
@@ -261,4 +266,3 @@ def get_nfl_player_headshot(player_name, get_stats=True):
         print(f"Other error occurred: {err}")
 
     return None
-

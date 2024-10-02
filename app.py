@@ -30,8 +30,6 @@ def compare():
     player_a_team_logo = get_team_logo(team1)
     player_b_team_logo = get_team_logo(team2)
 
-
-
     # Perform the comparison
     result = compare_players(player_a_id, player_b_id, week, player_a_name, player_b_name)
 

@@ -1,7 +1,6 @@
 from utils.comparison import compare_players, get_player_id
 
 
-
 if __name__ == "__main__":
     # Get player IDs
     aaron_rodgers_id = get_player_id("Aaron Rodgers")
