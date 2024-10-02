@@ -285,6 +285,12 @@ def get_team_logo(team_name):
 def calculate_average_fantasy_points(games):
     total_points = 0
     for game in games['body']:
-        gamepoints = float(games['body'][game].get('fantasyPoints'))
+        gamepoints = float(games['body'][game]['fantasyPointsDefault'].get('PPR'))
         total_points += gamepoints
     return total_points
+
+
+def get_player_stats(player_id):
+    data = get_nfl_games_for_player(player_id)
+    print(data)
+    return None

@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
-from utils.comparison import compare_players, get_player_id, get_player_headshot, get_team_logo, get_player_pos
+from utils.comparison import (compare_players, get_player_id, get_player_headshot, get_team_logo,
+                              get_player_pos, get_nfl_games_for_player, calculate_average_fantasy_points)
 from utils.api_calls import get_fantasy_point_projections
 
 app = Flask(__name__)
@@ -37,6 +38,12 @@ def compare():
     player_a_pos = get_player_pos(player_a_projections)
     player_b_pos = get_player_pos(player_b_projections)
 
+    player_a_recent_games = get_nfl_games_for_player(player_a_id, number_of_games=week - 1)
+    player_b_recent_games = get_nfl_games_for_player(player_b_id, number_of_games=week - 1)
+
+    player_a_average_points = round(float(calculate_average_fantasy_points(player_a_recent_games) / (week - 1)), 2)
+    player_b_average_points = round(float(calculate_average_fantasy_points(player_b_recent_games) / (week - 1)), 2)
+
     # Perform the comparison
     result = compare_players(player_a_id, player_b_id, week, player_a_name, player_b_name)
 
@@ -51,7 +58,9 @@ def compare():
         player_a_team_logo=player_a_team_logo,
         player_b_team_logo=player_b_team_logo,
         player_a_pos=player_a_pos,
-        player_b_pos=player_b_pos
+        player_b_pos=player_b_pos,
+        player_a_average_points=player_a_average_points,
+        player_b_average_points=player_b_average_points
     )
 
 
