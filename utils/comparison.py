@@ -7,8 +7,8 @@ def compare_players(player_a_id, player_b_id, week, player_a_name, player_b_name
     Compares two NFL players based on fantasy point projections, team performance, and recent stats.
 
     :param week: Week for comparison
-    :param player_a_name: Player name for first player
-    :param player_b_name: Player name for second player
+    :param player_a_name: Player name for first player being compared
+    :param player_b_name: Player name for second player being compared
     :param player_a_id: ID of the first player to compare.
     :param player_b_id: ID of the second player to compare.
     :return: A string indicating which player is better for a fantasy start.
@@ -55,24 +55,26 @@ def compare_players(player_a_id, player_b_id, week, player_a_name, player_b_name
     player_b_season_performance = calculate_average_fantasy_points(player_b_recent_games)/(week - 1)
 
     # Get just last week
-    player_a_lastweek_performance = get_last_week_performance(player_a_recent_games)
-    player_b_lastweek_performance = get_last_week_performance(player_b_recent_games)
+    player_a_last_week_performance = get_last_week_performance(player_a_recent_games)
+    player_b_last_week_performance = get_last_week_performance(player_b_recent_games)
 
     # 4. Calculate Final Scores
-    player_a_solo_pred_score = (player_a_updated_proj + player_a_season_performance + player_a_lastweek_performance)/3
-    player_b_solo_pred_score = (player_b_updated_proj + player_b_season_performance + player_b_lastweek_performance)/3
+    player_a_solo_predicted_score = (player_a_updated_proj + player_a_season_performance +
+                                     player_a_last_week_performance)/3
+    player_b_solo_predicted_score = (player_b_updated_proj + player_b_season_performance +
+                                     player_b_last_week_performance)/3
 
     # 5. Calculate opponent toughness
     player_a_position = get_player_pos(player_a_projections)
     player_b_position = get_player_pos(player_b_projections)
-    player_a_matchup_avg_points_allowed = get_player_matchup_stats(player_a_team_id, week,
-                                                                   player_a_position, player_a_recent_games)
-    player_b_matchup_avg_points_allowed = get_player_matchup_stats(player_b_team_id, week,
-                                                                   player_b_position, player_b_recent_games)
+    player_a_opponent_avg_points_allowed = get_player_opponent_stats(player_a_team_id,
+                                                                     week, player_a_position, player_a_recent_games)
+    player_b_opponent_avg_points_allowed = get_player_opponent_stats(player_b_team_id,
+                                                                     week, player_b_position, player_b_recent_games)
 
     # 6. Take Final Scores with opponent toughness
-    player_a_score = float(((player_a_solo_pred_score * 7) + player_a_matchup_avg_points_allowed)/8)
-    player_b_score = float(((player_b_solo_pred_score * 7) + player_b_matchup_avg_points_allowed)/8)
+    player_a_score = float(((player_a_solo_predicted_score * 7) + player_a_opponent_avg_points_allowed)/8)
+    player_b_score = float(((player_b_solo_predicted_score * 7) + player_b_opponent_avg_points_allowed)/8)
 
     # 7. Compare and Return the Result
     if player_a_score > player_b_score:
@@ -92,8 +94,8 @@ def get_player_id(player_name):
     if data and 'body' in data:
         projections = data['body'].get('playerProjections', [])
         for player in projections:
-            playername = projections[player].get('longName')
-            if playername.lower() == player_name.lower():
+            name = projections[player].get('longName')
+            if name.lower() == player_name.lower():
                 return player
     return None
 
@@ -108,18 +110,18 @@ def get_player_week_points(player_id):
         projections = data['body'].get('playerProjections', [])
         for player in projections:
             if player == player_id:
-                rush_fantasypoints = (float(projections[player]['Rushing'].get('rushYds'))/10 +
-                                      float(projections[player]['Rushing'].get('rushTD'))*6)
-                pass_fantasypoints = (float(projections[player]['Passing'].get('passYds'))*.04 +
-                                      float(projections[player]['Passing'].get('passTD'))*4 -
-                                      float(projections[player]['Passing'].get('int'))*2)
-                receiving_fantasypoints = (float(projections[player]['Receiving'].get('recTD'))*6 +
-                                           float(projections[player]['Receiving'].get('receptions')) +
-                                           float(projections[player]['Receiving'].get('recYds'))*.01)
-                fumble_fantasypoints = float(projections[player].get('fumblesLost'))*2
-                twopoint_fantasypoints = float(projections[player].get('twoPointConversion')) * 2
-                fantasy_points = (rush_fantasypoints + pass_fantasypoints + receiving_fantasypoints -
-                                  fumble_fantasypoints + twopoint_fantasypoints)
+                rush_fantasy_points = (float(projections[player]['Rushing'].get('rushYds'))/10 +
+                                       float(projections[player]['Rushing'].get('rushTD'))*6)
+                pass_fantasy_points = (float(projections[player]['Passing'].get('passYds'))*.04 +
+                                       float(projections[player]['Passing'].get('passTD'))*4 -
+                                       float(projections[player]['Passing'].get('int'))*2)
+                receiving_fantasy_points = (float(projections[player]['Receiving'].get('recTD'))*6 +
+                                            float(projections[player]['Receiving'].get('receptions')) +
+                                            float(projections[player]['Receiving'].get('recYds'))*.01)
+                fumble_fantasy_points = float(projections[player].get('fumblesLost'))*2
+                twopoint_fantasy_points = float(projections[player].get('twoPointConversion')) * 2
+                fantasy_points = (rush_fantasy_points + pass_fantasy_points + receiving_fantasy_points -
+                                  fumble_fantasy_points + twopoint_fantasy_points)
                 fantasy_points = fantasy_points/17
                 return fantasy_points
     return None
@@ -154,7 +156,7 @@ def get_player_team_stats(player_team_id, teams_list):
     return None
 
 
-def get_player_matchup_stats(team_id, week, player_pos, recent_games):
+def get_player_opponent_stats(team_id, week, player_pos, recent_games):
     weekly_matchups = get_nfl_games_for_week(week=week, season_type="reg", season="2024")
     opponent = ''
     for game in weekly_matchups['body']:
@@ -168,35 +170,35 @@ def get_player_matchup_stats(team_id, week, player_pos, recent_games):
     for team in schedules['body']:
         if team['teamAbv'] == opponent:
             if player_pos == 'QB':
-                team_passtd_allowed = float(team['teamStats']['Defense']['passingTDAllowed'])
+                team_pass_td_allowed = float(team['teamStats']['Defense']['passingTDAllowed'])
                 team_passing_yards_allowed = float(team['teamStats']['Defense']['passingYardsAllowed'])
                 team_defensive_interceptions = float(team['teamStats']['Defense']['defensiveInterceptions'])
                 season_position_points = float((team_passing_yards_allowed*.04) +
-                                               (team_passtd_allowed*4) - (team_defensive_interceptions*2))
+                                               (team_pass_td_allowed*4) - (team_defensive_interceptions*2))
                 average_rushing_points = 0
                 for game in recent_games['body']:
                     if 'Rushing' in recent_games['body'][game]:
-                        rushing_gamepoints = float(recent_games['body'][game]['Rushing'].get('rushYds'))
-                        average_rushing_points += rushing_gamepoints
+                        rushing_game_points = float(recent_games['body'][game]['Rushing'].get('rushYds'))
+                        average_rushing_points += rushing_game_points
                 average_rushing_points = float((average_rushing_points/(week - 1))*.1)
                 return (season_position_points / (week - 1)) + average_rushing_points
 
             elif player_pos == 'WR':
-                team_passtd_allowed = float(team['teamStats']['Defense']['passingTDAllowed'])
+                team_pass_td_allowed = float(team['teamStats']['Defense']['passingTDAllowed'])
                 team_passing_yards_allowed = float(team['teamStats']['Defense']['passingYardsAllowed'])
-                season_position_points = float((team_passing_yards_allowed*.1) + (team_passtd_allowed*6))
+                season_position_points = float((team_passing_yards_allowed*.1) + (team_pass_td_allowed*6))
                 average_rushing_points = 0
                 average_throwing_points = 0
                 average_touchdown_points = 0
                 for game in recent_games['body']:
                     if 'Rushing' in recent_games['body'][game]:
-                        rushing_gamepoints = float(recent_games['body'][game]['Rushing'].get('rushYds'))
-                        average_rushing_points += rushing_gamepoints
+                        rushing_game_points = float(recent_games['body'][game]['Rushing'].get('rushYds'))
+                        average_rushing_points += rushing_game_points
                     if 'Passing' in recent_games['body'][game]:
-                        throwing_gamepoints = float(recent_games['body'][game]['Passing'].get('passYds'))
-                        touchdown_gamepoints = float(recent_games['body'][game]['Passing'].get('passTD'))
-                        average_throwing_points += throwing_gamepoints
-                        average_touchdown_points += touchdown_gamepoints
+                        throwing_game_points = float(recent_games['body'][game]['Passing'].get('passYds'))
+                        touchdown_game_points = float(recent_games['body'][game]['Passing'].get('passTD'))
+                        average_throwing_points += throwing_game_points
+                        average_touchdown_points += touchdown_game_points
                 average_rushing_points = float((average_rushing_points / (week - 1)) * .1)
                 average_throwing_points = float((average_throwing_points / (week - 1)) * .04)
                 average_touchdown_points = float((average_touchdown_points / (week - 1)) * 4)
@@ -204,26 +206,26 @@ def get_player_matchup_stats(team_id, week, player_pos, recent_games):
                         average_throwing_points + average_touchdown_points)
 
             elif player_pos == 'RB':
-                team_rushtd_allowed = float(team['teamStats']['Defense']['rushingTDAllowed'])
+                team_rush_td_allowed = float(team['teamStats']['Defense']['rushingTDAllowed'])
                 team_rushing_yards_allowed = float(team['teamStats']['Defense']['rushingYardsAllowed'])
-                season_position_points = float((team_rushing_yards_allowed*.1) + (team_rushtd_allowed*6))
+                season_position_points = float((team_rushing_yards_allowed*.1) + (team_rush_td_allowed*6))
                 average_receiving_points = 0
                 average_throwing_points = 0
                 average_touchdown_points = 0
                 for game in recent_games['body']:
                     if 'Receiving' in recent_games['body'][game]:
-                        receiving_yardpoints = float(recent_games['body'][game]['Receiving'].get('recYds'))
+                        receiving_yard_points = float(recent_games['body'][game]['Receiving'].get('recYds'))
                         receiving_points = float(recent_games['body'][game]['Receiving'].get('receptions'))
                         receiving_td = float(recent_games['body'][game]['Receiving'].get('recTD'))
-                        average_receiving_points = (average_receiving_points + (receiving_yardpoints*.1) +
+                        average_receiving_points = (average_receiving_points + (receiving_yard_points*.1) +
                                                     receiving_points + (receiving_td * 6))
                     else:
                         average_receiving_points += 0
                     if 'Passing' in recent_games['body'][game]:
-                        throwing_gamepoints = float(recent_games['body'][game]['Passing'].get('passYds'))
-                        touchdown_gamepoints = float(recent_games['body'][game]['Passing'].get('passTD'))
-                        average_throwing_points += throwing_gamepoints
-                        average_touchdown_points += touchdown_gamepoints
+                        throwing_game_points = float(recent_games['body'][game]['Passing'].get('passYds'))
+                        touchdown_game_points = float(recent_games['body'][game]['Passing'].get('passTD'))
+                        average_throwing_points += throwing_game_points
+                        average_touchdown_points += touchdown_game_points
                 average_receiving_points = average_receiving_points / (week - 1)
                 average_throwing_points = float((average_throwing_points / (week - 1)) * .04)
                 average_touchdown_points = float((average_touchdown_points / (week - 1)) * 4)
@@ -231,9 +233,9 @@ def get_player_matchup_stats(team_id, week, player_pos, recent_games):
                         average_touchdown_points + average_throwing_points)
 
             elif player_pos == 'TE':
-                team_passtd_allowed = float(team['teamStats']['Defense']['passingTDAllowed'])
+                team_pass_td_allowed = float(team['teamStats']['Defense']['passingTDAllowed'])
                 team_passing_yards_allowed = float(team['teamStats']['Defense']['passingYardsAllowed'])
-                season_position_points = float((team_passing_yards_allowed * .1) + (team_passtd_allowed * 6))
+                season_position_points = float((team_passing_yards_allowed * .1) + (team_pass_td_allowed * 6))
                 return season_position_points/(week-1) / 3
             else:
                 return None
@@ -277,8 +279,8 @@ def get_team_logo(team_name):
 def calculate_average_fantasy_points(games):
     total_points = 0
     for game in games['body']:
-        gamepoints = float(games['body'][game]['fantasyPointsDefault'].get('PPR'))
-        total_points += gamepoints
+        game_points = float(games['body'][game]['fantasyPointsDefault'].get('PPR'))
+        total_points += game_points
     return total_points
 
 

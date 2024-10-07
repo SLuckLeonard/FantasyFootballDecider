@@ -45,8 +45,8 @@ def compare():
     player_a_average_points = round(float(calculate_average_fantasy_points(player_a_recent_games) / (week - 1)), 2)
     player_b_average_points = round(float(calculate_average_fantasy_points(player_b_recent_games) / (week - 1)), 2)
 
-    player_a_lastweek_performance = get_last_week_performance(player_a_recent_games)
-    player_b_lastweek_performance = get_last_week_performance(player_b_recent_games)
+    player_a_last_week_performance = get_last_week_performance(player_a_recent_games)
+    player_b_last_week_performance = get_last_week_performance(player_b_recent_games)
 
     # Perform the comparison
     result = compare_players(player_a_id, player_b_id, week, player_a_name, player_b_name)
@@ -65,8 +65,8 @@ def compare():
         player_b_pos=player_b_pos,
         player_a_average_points=player_a_average_points,
         player_b_average_points=player_b_average_points,
-        player_a_lastweek_performance=player_a_lastweek_performance,
-        player_b_lastweek_performance=player_b_lastweek_performance
+        player_a_lastweek_performance=player_a_last_week_performance,
+        player_b_lastweek_performance=player_b_last_week_performance
     )
 
 
