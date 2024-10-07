@@ -76,11 +76,11 @@ def compare_players(player_a_id, player_b_id, week, player_a_name, player_b_name
 
     # 7. Compare and Return the Result
     if player_a_score > player_b_score:
-        return (f"Start Player A (ID: {player_a_name}) with a score of {player_a_score:.2f} "
-                f"over Player B (ID: {player_b_name}) with a score of {player_b_score:.2f}")
+        return (f"Start {player_a_name} with estimated fantasy points of {player_a_score:.2f} "
+                f"over {player_b_name} with estimated fantasy points of {player_b_score:.2f}")
     else:
-        return (f"Start Player B (ID: {player_b_name}) with a score of {player_b_score:.2f} "
-                f"over Player A (ID: {player_a_name}) with a score of {player_a_score:.2f}")
+        return (f"Start {player_b_name} with estimated fantasy points of {player_b_score:.2f} "
+                f"over {player_a_name} with estimated fantasy points of {player_a_score:.2f}")
 
 
 def get_player_id(player_name):
