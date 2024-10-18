@@ -21,6 +21,10 @@ def create_csv(file_path, pos):
         headers = ['Player Name', 'Projected Season Rush Yards', 'Projected Season Rush TDs',
                    'Projected Season Receptions', 'Projected Season Yards', 'Projected Season TDs']
 
+    elif pos == 'QB':
+        headers = ['Player Name', 'Projected Season Rushing Yards', 'Projected Season Rushing TDs',
+                   'Projected Season Passing TDs', 'Projected Season Passing Yards', 'Projected Season INTs']
+
     with open(file_path, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(headers)
@@ -45,8 +49,6 @@ def add_data_to_csv(file_path, pos):
                     writer = csv.writer(file)
                     writer.writerow([player_name, season_rush_prediction, season_rush_td_prediction,
                                      season_rec_prediction, season_yard_prediction, season_red_td_prediction])
-                    print(f"Added row to CSV: {player_name}, {season_rush_prediction}, {season_rush_td_prediction}, "
-                          f"{season_rec_prediction}, {season_yard_prediction}, {season_red_td_prediction}")
 
             elif pos == 'RB' and (projections[player].get('pos') == 'RB' or projections[player].get('pos') == 'FB'):
                 player_name = projections[player].get('longName')
@@ -59,15 +61,23 @@ def add_data_to_csv(file_path, pos):
                     writer = csv.writer(file)
                     writer.writerow([player_name, season_rush_prediction, season_rush_td_prediction,
                                      season_rec_prediction, season_yard_prediction, season_red_td_prediction])
-                    print(f"Added row to CSV: {player_name}, {season_rush_prediction}, {season_rush_td_prediction}, "
-                          f"{season_rec_prediction}, {season_yard_prediction}, {season_red_td_prediction}")
 
             elif pos == 'TE' and projections[player].get('pos') == 'TE':
                 continue
             elif pos == 'PK' and projections[player].get('pos') == 'PK':
                 continue
             elif pos == 'QB' and projections[player].get('pos') == 'QB':
-                continue
+                print(projections[player])
+                player_name = projections[player].get('longName')
+                season_rush_prediction = projections[player]['Rushing'].get('rushYds')
+                season_rush_td_prediction = projections[player]['Rushing'].get('rushTD')
+                season_pass_td_prediction = projections[player]['Passing'].get('passTD')
+                season_pass_yards_prediction = projections[player]['Passing'].get('passYds')
+                season_int_prediction = projections[player]['Passing'].get('int')
+                with open(file_path, mode='a', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow([player_name, season_rush_prediction, season_rush_td_prediction,
+                                     season_pass_td_prediction, season_pass_yards_prediction, season_int_prediction])
     return None
 
 

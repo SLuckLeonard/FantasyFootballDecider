@@ -13,5 +13,6 @@ if __name__ == "__main__":
     create_csv(CSV_FILE_QB, 'QB')
     create_csv(CSV_FILE_PK, 'PK')
     #add_data_to_csv(CSV_FILE_WR, 'WR')
-    add_data_to_csv(CSV_FILE_RB, 'RB')
+    #add_data_to_csv(CSV_FILE_RB, 'RB')
+    add_data_to_csv(CSV_FILE_QB, 'QB')
 
