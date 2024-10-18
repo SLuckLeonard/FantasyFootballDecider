@@ -34,7 +34,6 @@ def add_data_to_csv(file_path, pos):
         projections = data['body'].get('playerProjections', [])
         for player in projections:
             if pos == 'WR' and projections[player].get('pos') == 'WR':
-                print(projections[player])
                 player_name = projections[player].get('longName')
                 season_rec_prediction = projections[player]['Receiving'].get('receptions')
                 season_yard_prediction = projections[player]['Receiving'].get('recYds')
@@ -44,7 +43,8 @@ def add_data_to_csv(file_path, pos):
                     writer.writerow([player_name, season_rec_prediction, season_yard_prediction, season_red_td_prediction])
                     print(f"Added row to CSV: {player_name}, {season_rec_prediction}, {season_yard_prediction}, {season_red_td_prediction}")
             elif pos == 'RB' and (projections[player].get('pos') == 'RB' or projections[player].get('pos') == 'FB'):
-                continue
+                print(projections[player])
+                player_name = projections[player].get('longName')
             elif pos == 'TE' and projections[player].get('pos') == 'TE':
                 continue
             elif pos == 'PK' and projections[player].get('pos') == 'PK':
