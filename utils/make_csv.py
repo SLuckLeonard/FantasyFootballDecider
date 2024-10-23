@@ -25,6 +25,10 @@ def create_csv(file_path, pos):
         headers = ['Player Name', 'Projected Season Rushing Yards', 'Projected Season Rushing TDs',
                    'Projected Season Passing TDs', 'Projected Season Passing Yards', 'Projected Season INTs']
 
+    elif pos == 'TE':
+        headers = ['Player Name', 'Projected Season Rush Yards', 'Projected Season Rush TDs',
+                   'Projected Season Receptions', 'Projected Season Yards', 'Projected Season TDs']
+
     with open(file_path, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(headers)
@@ -63,7 +67,16 @@ def add_data_to_csv(file_path, pos):
                                      season_rec_prediction, season_yard_prediction, season_red_td_prediction])
 
             elif pos == 'TE' and projections[player].get('pos') == 'TE':
-                continue
+                player_name = projections[player].get('longName')
+                season_rush_prediction = projections[player]['Rushing'].get('rushYds')
+                season_rush_td_prediction = projections[player]['Rushing'].get('rushTD')
+                season_rec_prediction = projections[player]['Receiving'].get('receptions')
+                season_yard_prediction = projections[player]['Receiving'].get('recYds')
+                season_red_td_prediction = projections[player]['Receiving'].get('recTD')
+                with open(file_path, mode='a', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow([player_name, season_rush_prediction, season_rush_td_prediction,
+                                     season_rec_prediction, season_yard_prediction, season_red_td_prediction])
             elif pos == 'PK' and projections[player].get('pos') == 'PK':
                 continue
             elif pos == 'QB' and projections[player].get('pos') == 'QB':
