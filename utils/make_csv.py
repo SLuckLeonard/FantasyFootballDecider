@@ -29,6 +29,10 @@ def create_csv(file_path, pos):
         headers = ['Player Name', 'Projected Season Rush Yards', 'Projected Season Rush TDs',
                    'Projected Season Receptions', 'Projected Season Yards', 'Projected Season TDs']
 
+    elif pos == 'PK':
+        headers = ['Player Name', 'Projected Season Made FGs', 'Projected Season Missed FGs',
+                   'Projected Season Made XPs', 'Projected Season Missed XPs']
+
     with open(file_path, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(headers)
@@ -78,9 +82,17 @@ def add_data_to_csv(file_path, pos):
                     writer.writerow([player_name, season_rush_prediction, season_rush_td_prediction,
                                      season_rec_prediction, season_yard_prediction, season_red_td_prediction])
             elif pos == 'PK' and projections[player].get('pos') == 'PK':
-                continue
-            elif pos == 'QB' and projections[player].get('pos') == 'QB':
                 print(projections[player])
+                player_name = projections[player].get('longName')
+                season_fg_made_prediction = projections[player]['Kicking'].get('fgMade')
+                season_fg_missed_prediction = projections[player]['Kicking'].get('fgMissed')
+                season_xp_made_prediction = projections[player]['Kicking'].get('xpMade')
+                season_xp_missed_prediction = projections[player]['Kicking'].get('xpMissed')
+                with open(file_path, mode='a', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow([player_name, season_fg_made_prediction, season_fg_missed_prediction,
+                                     season_xp_made_prediction, season_xp_missed_prediction])
+            elif pos == 'QB' and projections[player].get('pos') == 'QB':
                 player_name = projections[player].get('longName')
                 season_rush_prediction = projections[player]['Rushing'].get('rushYds')
                 season_rush_td_prediction = projections[player]['Rushing'].get('rushTD')
