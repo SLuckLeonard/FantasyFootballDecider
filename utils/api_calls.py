@@ -266,3 +266,46 @@ def get_nfl_player_headshot(player_name, get_stats=True):
         print(f"Other error occurred: {err}")
 
     return None
+
+
+def get_nfl_player_info(player_name=None, player_id=None, get_stats=True):
+    """
+    Fetches detailed information for an NFL player based on player name or ID.
+
+    :param player_name: The player's name (e.g., 'keenan_a' for Keenan Allen, optional).
+    :param player_id: The player's unique ID (optional).
+    :param get_stats: Whether to retrieve current season stats (default: True).
+    :return: A JSON response with player information and stats if available.
+    """
+
+    # Set up the query parameters
+    params = {
+        'getStats': str(get_stats).lower()  # Convert to string ('true'/'false')
+    }
+
+    # Add player-specific parameters if provided
+    if player_name:
+        params['playerName'] = player_name
+    if player_id:
+        params['playerID'] = player_id
+
+    headers = {
+        'x-rapidapi-host': RAPIDAPI_HOST,
+        'x-rapidapi-key': RAPIDAPI_KEY,
+    }
+
+    try:
+        # Perform the GET request
+        response = requests.get(BASE_PLAYER_INFO_URL, headers=headers, params=params)
+        response.raise_for_status()  # Raise an error for bad responses
+
+        # Parse and return JSON response
+        data = response.json()
+        return data
+
+    except requests.exceptions.HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+    except Exception as err:
+        print(f"Other error occurred: {err}")
+
+    return None
