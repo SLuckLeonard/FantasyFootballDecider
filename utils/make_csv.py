@@ -20,7 +20,9 @@ def create_csv(file_path, pos):
 
     elif pos == 'RB':
         headers = ['Player Name', 'Projected Season Rush Yards', 'Projected Season Rush TDs',
-                   'Projected Season Receptions', 'Projected Season Yards', 'Projected Season TDs']
+                   'Projected Season Receptions', 'Projected Season Yards', 'Projected Season TDs',
+                   'Season Reception Average', 'Season TDs Average', 'Season Yards Average',
+                   'Season Rush Yards Average', 'Season Rush TDs Average', 'Injury Status']
 
     elif pos == 'QB':
         headers = ['Player Name', 'Projected Season Rushing Yards', 'Projected Season Rushing TDs',
@@ -90,10 +92,43 @@ def add_data_to_csv(file_path, pos):
                 season_rec_prediction = projections[player]['Receiving'].get('receptions')
                 season_yard_prediction = projections[player]['Receiving'].get('recYds')
                 season_red_td_prediction = projections[player]['Receiving'].get('recTD')
+                player_info_raw = get_nfl_player_info(player_name)
+                player_info = player_info_raw["body"][0]
+                games_played = player_info["stats"].get("gamesPlayed")
+                if "Receiving" in player_info["stats"]:
+                    average_season_rec = float(player_info["stats"]['Receiving'].get('receptions')) / int(games_played)
+                    average_season_rec_td = float(player_info["stats"]['Receiving'].get('recTD')) / int(games_played)
+                    average_season_yards = float(player_info["stats"]['Receiving'].get('recYds')) / int(games_played)
+                else:
+                    print(player_name)
+                    average_season_rec = 0
+                    average_season_rec_td = 0
+                    average_season_yards = 0
+                if "Rushing" in player_info["stats"]:
+                    average_season_rush_yards = (float(player_info["stats"]['Rushing'].get('rushYds')) /
+                                                 int(games_played))
+                    average_season_rush_td = float(player_info["stats"]['Rushing'].get('rushTD')) / int(games_played)
+                else:
+                    print(player_name)
+                    average_season_rush_yards = 0
+                    average_season_rush_td = 0
+                injury_info = player_info['injury']
+                injury_status = 0
+                if injury_info.get('designation') != '':
+                    if injury_info.get('designation') == 'Questionable':
+                        injury_status = 1
+                    elif injury_info.get('designation') == 'Doubtful':
+                        injury_status = 2
+                    elif injury_info.get('designation') == 'Out':
+                        injury_status = 3
+                    elif injury_info.get('designation') == 'Injured Reserve':
+                        injury_status = 4
                 with open(file_path, mode='a', newline='') as file:
                     writer = csv.writer(file)
                     writer.writerow([player_name, season_rush_prediction, season_rush_td_prediction,
-                                     season_rec_prediction, season_yard_prediction, season_red_td_prediction])
+                                     season_rec_prediction, season_yard_prediction, season_red_td_prediction,
+                                     average_season_rec, average_season_rec_td, average_season_yards,
+                                     average_season_rush_yards, average_season_rush_td, injury_status])
 
             elif pos == 'TE' and projections[player].get('pos') == 'TE':
                 player_name = projections[player].get('longName')
